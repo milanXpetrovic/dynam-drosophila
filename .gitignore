@@ -1,3 +1,13 @@
+/cache
+/data
+/docs
+/goldfish.latent-develop
+/notebooks
+/res
+/tmp
+/.vscode
+/configs
+
 # History files
 .Rhistory
 .Rapp.history
