@@ -10,7 +10,7 @@ import settings
 from utils import fileio
 
 # --- Constants ---
-TIME_WINDOW_SIZE_SEC = 36 # 3, 12
+TIME_WINDOW_SIZE_SEC = 36
 NUM_FLIES = 12
 MAX_TIME = 28800
 TIME_WINDOW = 24 * TIME_WINDOW_SIZE_SEC
