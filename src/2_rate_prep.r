@@ -50,7 +50,6 @@ rate_model_formula <- dependent ~ 1 +
   ego(nodesAttr$negative_inf_weighted) +
   ego(nodesAttr$distance_traveled_between_interactions) +
   ego(nodesAttr$number_of_flies_in_soc_space) +
-  ego(nodesAttr$unique_partners_met_interaction_space) +
   ego(nodesAttr$unique_partners_met_social_space) +
   ego(flies$young) + ego(flies$old) + ego(flies$isolated)
 
