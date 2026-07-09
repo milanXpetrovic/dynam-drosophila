@@ -53,18 +53,10 @@ choice_model_formula <- dependent ~
   trans(interaction_network, window = 288) +
   trans(interaction_network, window = 864) +
   trans(interaction_network, window = 2592) +
-  cycle(interaction_network, window = 96) +
-  cycle(interaction_network, window = 288) +
-  cycle(interaction_network, window = 864) +
-  cycle(interaction_network, window = 2592) +
   inertia(interaction_network, weighted = TRUE, window = 96) +
   inertia(interaction_network, weighted = TRUE, window = 288) +
   inertia(interaction_network, weighted = TRUE, window = 864) +
   inertia(interaction_network, weighted = TRUE, window = 2592) +
-  recip(interaction_network, weighted = TRUE, window = 96) +
-  recip(interaction_network, weighted = TRUE, window = 288) +
-  recip(interaction_network, weighted = TRUE, window = 864) +
-  recip(interaction_network, weighted = TRUE, window = 2592) +
   inertia(interaction_network, weighted = FALSE, window = 96) +
   # window 288 (weighted=FALSE) is the RANDOM effect -> kept out of fixed effects
   inertia(interaction_network, weighted = FALSE, window = 864) +
@@ -73,24 +65,8 @@ choice_model_formula <- dependent ~
   recip(interaction_network, weighted = FALSE, window = 288) +
   recip(interaction_network, weighted = FALSE, window = 864) +
   recip(interaction_network, weighted = FALSE, window = 2592) +
-  common_sender(interaction_network, window = 96) +
-  common_sender(interaction_network, window = 288) +
-  common_sender(interaction_network, window = 864) +
-  common_sender(interaction_network, window = 2592) +
-  common_receiver(interaction_network, window = 96) +
-  common_receiver(interaction_network, window = 288) +
-  common_receiver(interaction_network, window = 864) +
-  common_receiver(interaction_network, window = 2592) +
-  alter(nodesAttr$positive_influence) +
-  alter(nodesAttr$negative_influence) +
-  alter(nodesAttr$positive_inf_weighted) +
-  alter(nodesAttr$negative_inf_weighted) +
-  alter(nodesAttr$distance_traveled_between_interactions) +
   alter(nodesAttr$number_of_flies_in_soc_space) +
-  alter(nodesAttr$unique_partners_met_interaction_space) +
-  alter(nodesAttr$unique_partners_met_social_space) +
   sim(nodesAttr$activity) +
-  sim(nodesAttr$popularity) +
   alter(flies$young) +
   alter(flies$old) +
   alter(flies$isolated)
