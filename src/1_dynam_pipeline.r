@@ -344,13 +344,14 @@ data_stan_re$data_stan$V1_choice <-
 data_stan_re$data_stan$P_choice <- ncol(data_stan_re$data_stan$X_choice_raw)
 
 # interaction data
-data_stan_re$data_stan$C <- length(cat_interaction_names)
-data_stan_re$data_stan$interaction <- interaction_all[
-  data_stan_re$data_stan$start_choice
-]
-data_stan_re$data_stan$send_int <- interaction_all[
-  data_stan_re$data_stan$start_group
-]
+data_stan_re$data_stan$send_int <- rep(1:3, each = 20)
+sg <- data_stan_re$data_stan$start_group
+data_stan_re$data_stan$interaction <- c(
+  rep(1, sg[20]),
+  rep(2, sg[40] - sg[20]),
+  rep(3, data_stan_re$data_stan$T_choice - sg[40])
+)
+data_stan_re$data_stan$C <- 3
 
 # clean up
 data_stan_re$data_stan$Z_choice <- NULL
