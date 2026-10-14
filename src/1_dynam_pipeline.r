@@ -71,18 +71,18 @@ choice_model_formula <- dependent ~
   inertia(interaction_network, weighted = TRUE, window = 864) +
   inertia(interaction_network, weighted = TRUE, window = 2592) +
   inertia(interaction_network, weighted = FALSE, window = 96) +
-  # window 288 (weighted=FALSE) is the RANDOM effect -> kept out of fixed effects
+  inertia(interaction_network, weighted = FALSE, window = 288) +
   inertia(interaction_network, weighted = FALSE, window = 864) +
   inertia(interaction_network, weighted = FALSE, window = 2592) +
   recip(interaction_network, weighted = FALSE, window = 96) +
-  recip(interaction_network, weighted = FALSE, window = 288) +
+  # recip(interaction_network, weighted = FALSE, window = 288) +
   recip(interaction_network, weighted = FALSE, window = 864) +
   recip(interaction_network, weighted = FALSE, window = 2592) +
   alter(nodesAttr$number_of_flies_in_soc_space) +
   sim(nodesAttr$activity) +
-  alter(flies$young) +
-  alter(flies$old) +
-  alter(flies$isolated)
+  alter(nodesAttr$young) +
+  alter(nodesAttr$old) +
+  alter(nodesAttr$isolated)
 
 # ===========================================================================
 # STEP 1 — preprocess every group (parallel)
@@ -263,7 +263,7 @@ parallel_results <- foreach(
 
     data_choice <- make_data_re(
       random_effects = list(
-        inertia(interaction_network, weighted = FALSE, window = 288) ~ 1
+        recip(interaction_network, weighted = FALSE, window = 288) ~ 1
       ),
       fixed_effects = choice_model_formula,
       model = "DyNAM",
@@ -314,11 +314,12 @@ data_stan_re <- gather_groups(
 
 # guard: fail loud if effect names shifted (would silently break the slicing below)
 .cn <- colnames(data_stan_re$data_stan$X_choice)
-cat_interaction_names <- grep("alter_fliesOf", .cn, value = TRUE, fixed = TRUE)
-cat_interaction_pos <- grep("alter_fliesOf", .cn, value = FALSE, fixed = TRUE)
+.cat_pattern <- "^alter_(young|old|isolated)$"
+cat_interaction_names <- grep(.cat_pattern, .cn, value = TRUE)
+cat_interaction_pos <- grep(.cat_pattern, .cn, value = FALSE)
 stopifnot(
-  "sim_nodesAttrOfpopularity" %in% .cn,
-  any(cat_interaction_names %in% .cn)
+  "sim_activity" %in% .cn,
+  length(cat_interaction_names) == 3
 )
 
 # transform the distance covariate (log1p) due to heavy tail
@@ -339,9 +340,17 @@ names(data_stan_re$data_stan)[
 ] <- "X_choice_raw"
 
 data_stan_re$data_stan$grain_size <- 4
-data_stan_re$data_stan$V1_choice <-
-  grep(colnames(data_stan_re$data_stan$Z_choice), .cn, fixed = TRUE)
+# index against the POST-removal matrix -- .cn still holds the pre-removal names
+data_stan_re$data_stan$V1_choice <- grep(
+  colnames(data_stan_re$data_stan$Z_choice),
+  colnames(data_stan_re$data_stan$X_choice_raw),
+  fixed = TRUE
+)
 data_stan_re$data_stan$P_choice <- ncol(data_stan_re$data_stan$X_choice_raw)
+stopifnot(
+  length(data_stan_re$data_stan$V1_choice) == 1,
+  data_stan_re$data_stan$V1_choice <= data_stan_re$data_stan$P_choice
+)
 
 # interaction data
 data_stan_re$data_stan$send_int <- rep(1:3, each = 20)
@@ -375,8 +384,8 @@ fit <- mod$sample(
   chains = 4,
   parallel_chains = 4,
   threads_per_chain = 3,
-  iter_warmup = 100,
-  iter_sampling = 100
+  iter_warmup = 1000,
+  iter_sampling = 1000
 )
 
 # ---- save everything needed for later analysis (no reload guesswork) ------

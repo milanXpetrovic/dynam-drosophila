@@ -51,7 +51,7 @@ rate_model_formula <- dependent ~ 1 +
   ego(nodesAttr$distance_traveled_between_interactions) +
   ego(nodesAttr$number_of_flies_in_soc_space) +
   ego(nodesAttr$unique_partners_met_social_space) +
-  ego(flies$young) + ego(flies$old) + ego(flies$isolated)
+  ego(nodesAttr$young) + ego(nodesAttr$old) + ego(nodesAttr$isolated)
 
 all_files_list <- lapply(treatments_list, function(treatment) {
   csv_files <- list.files(file.path(edgelist_path, treatment), pattern = "*.csv", full.names = TRUE)

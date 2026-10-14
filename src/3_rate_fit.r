@@ -51,16 +51,30 @@ old_X_rate[, var_distance] <- log1p(old_X_rate[, var_distance])
 
 # robust removal: intercept, indeg/outdeg long windows (keep 96), node_trans,
 # and the 3 treatment dummies (they become the categorical `interaction`).
+# NOTE: goldfish >= 1.8 dropped the "<nodeset>Of" infix from effect names
+# (ego_fliesOfyoung -> ego_young). Match either form so this survives both.
+cat_dummies      <- grep("^ego_([A-Za-z]+Of)?(young|old|isolated)$", cn, value = TRUE)
+# goldfish >= 1.8 names windows positionally, in formula order, and omits the
+# index on the first one:  96 -> "_wdw", 288 -> "_wdw_2", 864 -> "_wdw_3",
+# 2592 -> "_wdw_4".  Keep window 96 (the bare "_wdw"), drop the three longer ones.
+long_window_cols <- grep("^(indeg|outdeg)_interaction_network_(W_)?(288|864|2592|wdw_[234])$",
+                         cn, value = TRUE)
+
+if (length(cat_dummies) != 3 || length(long_window_cols) != 6) {
+  log_msg("UNEXPECTED EFFECT NAMES -- cannot build the design matrix safely.")
+  log_msg("  treatment dummies matched (want 3): ", paste(cat_dummies, collapse = ", "))
+  log_msg("  long-window cols matched (want 6): ", paste(long_window_cols, collapse = ", "))
+  log_msg("  all ", length(cn), " X_rate columns follow:")
+  print(cn)
+  stop("effect-name patterns need updating for this goldfish version -- see log above")
+}
+
 pos_remove <-
   grepl("Intercept", cn) |
-  grepl("^(indeg|outdeg)_interaction_network_(W_)?(288|864|2592)$", cn) |
+  cn %in% long_window_cols |
   grepl("^node_?trans", cn) |
-  cn %in% c("ego_fliesOfyoung", "ego_fliesOfold", "ego_fliesOfisolated")
-stopifnot(
-  any(grepl("Intercept", cn)),
-  all(c("ego_fliesOfyoung", "ego_fliesOfold", "ego_fliesOfisolated") %in% cn),
-  sum(grepl("^(indeg|outdeg)_interaction_network_(W_)?(288|864|2592)$", cn)) == 6
-)
+  cn %in% cat_dummies
+stopifnot(any(grepl("Intercept", cn)))
 log_msg("removing ", sum(pos_remove), " cols, keeping ", sum(!pos_remove),
         " -> [", paste(cn[pos_remove], collapse = ", "), "]")
 
